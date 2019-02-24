@@ -27,6 +27,7 @@
 
 #include <bitset.h>
 
+#include "chain.h"
 #include "closure.h"
 #include "complain.h"
 #include "getargs.h"
@@ -122,8 +123,15 @@ allocate_itemsets (void)
     for (item_number *rhsp = rules[r].rhs; 0 <= *rhsp; ++rhsp)
       {
         symbol_number sym = item_number_as_symbol_number (*rhsp);
-        count += 1;
-        symbol_count[sym] += 1;
+        /* FIXME: this computation is incorrect, it does not allocate
+           enough room.  See with arith.y for instance.
+
+           size_t ancestors = chain_ancestors_count (sym);
+           count += ancestors;
+           symbol_count[sym] += ancestors;
+        */
+        count += 1000;
+        symbol_count[sym] += 1000;
       }
 
   /* See comments before new_itemsets.  All the vectors of items
@@ -156,6 +164,14 @@ kernel_print (FILE *out)
         fprintf (out, "kernel[%s] =\n", symbols[i]->tag);
         core_print (kernel_size[i], kernel_base[i], out);
       }
+}
+
+/* Make sure the kernel is in sane state. */
+static void
+kernel_check (void)
+{
+  for (symbol_number i = 0; i < nsyms - 1; ++i)
+    assert (kernel_base[i] + kernel_size[i] <= kernel_base[i + 1]);
 }
 
 static void
@@ -209,20 +225,48 @@ new_itemsets (state *s)
 
   bitset_zero (shift_symbol);
 
+  if (trace_flag & trace_automaton)
+    {
+      fprintf (stderr, "initial kernel:\n");
+      kernel_print (stderr);
+    }
+
   for (size_t i = 0; i < nitemset; ++i)
     if (item_number_is_symbol_number (ritem[itemset[i]]))
       {
+        if (trace_flag & trace_automaton)
+          {
+            fputs ("working on: ", stderr);
+            item_print (ritem + itemset[i], NULL, stderr);
+            fputc ('\n', stderr);
+          }
         symbol_number sym = item_number_as_symbol_number (ritem[itemset[i]]);
-        bitset_set (shift_symbol, sym);
-        kernel_base[sym][kernel_size[sym]] = itemset[i] + 1;
-        kernel_size[sym]++;
+        bitset_iterator iter;
+        symbol_number des;
+        BITSET_FOR_EACH (iter, descendants[sym], des, 0)
+          if (is_leaf (des))
+            {
+              if (trace_flag & trace_automaton)
+                {
+                  fprintf (stderr, "Adding %s for item %s\n",
+                           symbols[des]->tag, symbols[sym]->tag);
+                  kernel_print (stderr);
+                }
+              bitset_set (shift_symbol, des);
+              kernel_base[des][kernel_size[des]] = itemset[i] + 1;
+              kernel_size[des]++;
+              if (trace_flag & trace_automaton)
+                kernel_print (stderr);
+            }
       }
 
   if (trace_flag & trace_automaton)
     {
+      fprintf (stderr, "final kernel:\n");
       kernel_print (stderr);
       fprintf (stderr, "new_itemsets: end: state = %d\n\n", s->number);
     }
+  kernel_check ();
 }
 
 
@@ -299,14 +343,29 @@ save_reductions (state *s)
       if (item_number_is_rule_number (item))
         {
           rule_number r = item_number_as_rule_number (item);
-          redset[count++] = &rules[r];
-          if (r == 0)
+          if (!(feature_flag & feature_eliminate_chains)
+              || !rule_useless_chain_p (&rules[r]))
             {
-              /* This is "reduce 0", i.e., accept. */
-              aver (!final_state);
-              final_state = s;
+              redset[count++] = &rules[r];
+              if (r == 0)
+                {
+                  /* This is "reduce 0", i.e., accept. */
+                  aver (!final_state);
+                  final_state = s;
+                }
             }
         }
+    }
+
+  if (trace_flag & trace_automaton)
+    {
+      fprintf (stderr, "reduction[%d] = {\n", s->number);
+      for (int i = 0; i < count; ++i)
+        {
+          rule_print (redset[i], NULL, stderr);
+          fputc ('\n', stderr);
+        }
+      fputs ("}\n", stderr);
     }
 
   /* Make a reductions structure and copy the data into it.  */
