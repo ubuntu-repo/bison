@@ -49,10 +49,11 @@ typedef enum
     warning_yacc,           /**< POSIXME.  */
     warning_conflicts_sr,   /**< S/R conflicts.  */
     warning_conflicts_rr,   /**< R/R conflicts.  */
-    warning_empty_rule,     /**< Implicitly empty rules.  */
     warning_deprecated,     /**< Obsolete constructs.  */
-    warning_precedence,     /**< Useless precedence and associativity.  */
+    warning_empty_rule,     /**< Implicitly empty rules.  */
     warning_other,          /**< All other warnings.  */
+    warning_precedence,     /**< Useless precedence and associativity.  */
+    warning_style,          /**< Style issue.  */
 
     warnings_size           /**< The number of warnings.  Must be last.  */
   } warning_bit;
@@ -105,6 +106,7 @@ typedef enum
     Wempty_rule       = 1 << warning_empty_rule,
     Wprecedence       = 1 << warning_precedence,
     Wother            = 1 << warning_other,
+    Wstyle            = 1 << warning_style,
 
     Werror            = 1 << 10, /** This bit is no longer used. */
 
