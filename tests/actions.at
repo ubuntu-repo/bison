@@ -64,6 +64,7 @@ AT_PARSER_CHECK([input], 0,
 
 AT_CLEANUP
 
+
 ## ----------------------- ##
 ## Typed midrule actions.  ##
 ## ----------------------- ##
@@ -197,6 +198,7 @@ AT_BISON_CHECK([-fcaret -Wno-empty-rule 2.y], [0])
 AT_BISON_OPTION_POPDEFS
 AT_CLEANUP
 
+
 ## ------------------------ ##
 ## Invalid uses of %empty.  ##
 ## ------------------------ ##
@@ -271,6 +273,7 @@ two.y:13.3-8: error: %empty on non-empty rule
 AT_BISON_OPTION_POPDEFS
 AT_CLEANUP
 
+
 ## ---------------------- ##
 ## Valid uses of %empty.  ##
 ## ---------------------- ##
@@ -298,6 +301,7 @@ AT_FULL_COMPILE([input])
 AT_PARSER_CHECK([input])
 AT_BISON_OPTION_POPDEFS
 AT_CLEANUP
+
 
 ## ------------------ ##
 ## Initial location.  ##
