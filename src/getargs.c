@@ -339,6 +339,7 @@ Warning categories include:\n\
   'empty-rule'        empty rules without %empty\n\
   'midrule-values'    unset or unused midrule values\n\
   'precedence'        useless precedence and associativity\n\
+  'style'             stylistic issues\n\
   'yacc'              incompatibilities with POSIX Yacc\n\
   'other'             all other warnings (enabled by default)\n\
   'all'               all the warnings except 'yacc'\n\
