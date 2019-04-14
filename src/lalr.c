@@ -301,7 +301,7 @@ initialize_goto_follows (void)
       /* Shifts outgoing from DST. */
       int j;
       FOR_EACH_SHIFT (trans, j)
-        continue; //bitset_set (goto_follows[i], TRANSITION_SYMBOL (trans, j));
+        bitset_set (goto_follows[i], TRANSITION_SYMBOL (trans, j));
 
       /* Gotos outgoing from DST. */
       goto_number nedges = 0;
