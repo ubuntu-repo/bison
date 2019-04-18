@@ -101,6 +101,11 @@ m4_define_default([b4_prefix], [b4_api_prefix])
 b4_percent_define_default([[api.value.union.name]],
                           [b4_api_PREFIX[][STYPE]])
 
+# b4_parse_stats_if
+# -----------------
+b4_percent_define_if_define([parse.stats])
+
+
 
 ## ------------------------ ##
 ## Pure/impure interfaces.  ##
@@ -787,6 +792,13 @@ m4_define([b4_YYDEBUG_define],
 m4_define([b4_declare_yydebug],
 [b4_YYDEBUG_define[
 #if ]b4_api_PREFIX[DEBUG
+enum ]b4_api_prefix[debug_type
+{
+  ]b4_api_prefix[debug_none = 0,]b4_parse_stats_if([[
+  ]b4_api_prefix[debug_trace = 1 << 0,
+  ]b4_api_prefix[debug_stats = 1 << 1]], [[
+  ]b4_api_prefix[debug_trace = -1]])[
+};
 extern int ]b4_prefix[debug;
 #endif][]dnl
 ])

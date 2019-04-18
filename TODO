@@ -129,6 +129,10 @@ Several features are not available in all the backends.
 - glr: Java
 - token constructors: Java and C
 
+* Other languages
+** Julia
+How about putting this into Bison: https://github.com/macd/Julson.jl.
+
 * Bugs
 ** Autotest has quotation issues
 tests/input.at:1730:AT_SETUP([%define errors])
