@@ -121,6 +121,7 @@
 %define locations
 %define parse.error verbose
 %define parse.lac full
+%define parse.stats
 %define parse.trace
 %defines
 %expect 0
